@@ -1,538 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rock Paper Anything</title>
-  <link rel="icon" href="data:,">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Anything</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg: #f9f8f5;
-      --surface: #ffffff;
-      --border: rgba(0,0,0,0.1);
-      --border-strong: rgba(0,0,0,0.2);
-      --text: #1a1a18;
-      --text-sec: #5f5e5a;
-      --text-hint: #888780;
-      --accent: #D85A30;
-      --accent-bg: #FAECE7;
-      --accent-text: #712B13;
-      --winner-bg: #E1F5EE;
-      --winner-text: #085041;
-      --winner-border: #1D9E75;
-      --loser-bg: #FCEBEB;
-      --loser-text: #791F1F;
-      --warning-bg: #FAEEDA;
-      --warning-border: #EF9F27;
-      --warning-text: #633806;
-      --r: 12px;
-      --r-sm: 8px;
-    }
+  body {
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #f0f0f0;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1a1a18;
-        --surface: #242422;
-        --border: rgba(255,255,255,0.1);
-        --border-strong: rgba(255,255,255,0.2);
-        --text: #e8e6e0;
-        --text-sec: #b4b2a9;
-        --text-hint: #888780;
-        --accent: #F0997B;
-        --accent-bg: #4A1B0C;
-        --accent-text: #F5C4B3;
-        --winner-bg: #04342C;
-        --winner-text: #9FE1CB;
-        --winner-border: #1D9E75;
-        --loser-bg: #501313;
-        --loser-text: #F7C1C1;
-        --warning-bg: #412402;
-        --warning-border: #BA7517;
-        --warning-text: #FAC775;
-      }
-    }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 65% 35%, rgba(255,80,0,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 25% 75%, rgba(0,120,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2.5rem 1rem 5rem;
-    }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 9vw, 6rem);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    text-align: center;
+    background: linear-gradient(135deg, #fff 40%, #ff5000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
+  .subtitle {
+    font-size: 0.8rem;
+    color: #444;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
 
-    h1 {
-      font-size: clamp(2rem, 6vw, 3rem);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text);
-    }
+  /* ── LOAD SCREEN ── */
+  #load-screen {
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+  }
 
-    h1 .accent {
-      color: var(--accent);
-    }
+  .load-info {
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
 
-    header p {
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-      color: var(--text-sec);
-    }
+  .load-info strong { color: #888; }
 
-    .arena {
-      width: 100%;
-      max-width: 580px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+  .load-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #ff5000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+  }
 
-    .inputs {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 10px;
-      align-items: center;
-    }
+  .load-btn:hover { background: #ff6a20; transform: translateY(-1px); }
+  .load-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      font-family: inherit;
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--r-sm);
-      outline: none;
-      transition: border-color 0.15s;
-    }
+  .progress-wrap {
+    margin-top: 1.5rem;
+    display: none;
+  }
 
-    input[type="text"]:focus {
-      border-color: var(--accent);
-    }
+  .progress-wrap.visible { display: block; }
 
-    input[type="text"]::placeholder {
-      color: var(--text-hint);
-    }
+  .progress-label {
+    font-size: 0.75rem;
+    color: #555;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    .vs {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-hint);
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-    }
+  .progress-bar-bg {
+    height: 4px;
+    background: #1a1a1a;
+    border-radius: 2px;
+    overflow: hidden;
+  }
 
-    #fight-btn {
-      width: 100%;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      font-family: inherit;
-      font-weight: 600;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-sm);
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
+  .progress-bar-fill {
+    height: 100%;
+    background: #ff5000;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
 
-    #fight-btn:hover { opacity: 0.9; }
-    #fight-btn:active { transform: scale(0.98); }
-    #fight-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .progress-status {
+    font-size: 0.75rem;
+    color: #444;
+    margin-top: 0.5rem;
+    text-align: center;
+    min-height: 1.2em;
+  }
 
-    .status-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: var(--text-sec);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 48px;
-    }
+  /* ── GAME SCREEN ── */
+  #game-screen { display: none; width: 100%; max-width: 700px; }
+  #game-screen.visible { display: flex; flex-direction: column; align-items: center; }
 
-    .status-bar.error {
-      background: var(--loser-bg);
-      color: var(--loser-text);
-    }
+  .score-bar {
+    display: flex;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+    font-family: 'Bebas Neue', sans-serif;
+  }
 
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--border-strong);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
-    }
+  .score-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+  .score-num { font-size: 2.2rem; line-height: 1; }
+  .score-lbl { font-size: 0.65rem; font-family: 'DM Sans', sans-serif; letter-spacing: 0.15em; text-transform: uppercase; color: #444; }
+  .you-score  .score-num { color: #ff5000; }
+  .opp-score  .score-num { color: #0078ff; }
+  .tie-score  .score-num { color: #444; }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+  .arena {
+    display: flex;
+    gap: 1.5rem;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
 
-    .progress-track {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 7px;
-    }
+  .player-card {
+    flex: 1;
+    border: 1px solid #1e1e1e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 2px;
-      transition: width 0.3s ease;
-      width: 0%;
-    }
+  .player-lbl {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #333;
+  }
 
-    .progress-label {
-      font-size: 0.7rem;
-      color: var(--text-hint);
-      text-align: right;
-      margin-top: 3px;
-    }
+  .player-lbl.you { color: #ff5000; }
+  .player-lbl.opp { color: #0078ff; }
 
-    .result {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 1.25rem;
-      display: none;
-    }
+  .choice-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.04em;
+    min-height: 2.2rem;
+    color: #f0f0f0;
+    word-break: break-word;
+  }
 
-    .result.visible { display: block; }
+  input {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    color: #f0f0f0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
 
-    .result-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 1rem;
-    }
+  input:focus { border-color: #ff5000; }
+  input::placeholder { color: #2a2a2a; }
 
-    .item-card {
-      padding: 0.875rem 1rem;
-      border-radius: var(--r-sm);
-      text-align: center;
-    }
+  .vs-sep {
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: #222;
+    align-self: center;
+  }
 
-    .item-card.winner {
-      background: var(--winner-bg);
-      border: 1.5px solid var(--winner-border);
-    }
+  .fight-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #ff5000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+  }
 
-    .item-card.loser {
-      background: var(--loser-bg);
-      border: 1px solid var(--border);
-    }
+  .fight-btn:hover:not(:disabled) { background: #ff6a20; transform: translateY(-1px); }
+  .fight-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    .item-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 4px;
-    }
+  /* ── RESULT ── */
+  .result-box {
+    width: 100%;
+    margin-top: 1.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeUp 0.35s ease;
+  }
 
-    .item-card.winner .item-label { color: var(--winner-text); }
-    .item-card.loser .item-label { color: var(--loser-text); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-    .item-name {
-      font-size: 1rem;
-      font-weight: 600;
-    }
+  .result-header {
+    padding: 1.25rem 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    letter-spacing: 0.05em;
+  }
 
-    .item-card.winner .item-name { color: var(--winner-text); }
-    .item-card.loser .item-name { color: var(--loser-text); }
+  .win-you { background: #1a0f00; color: #ff5000; border: 1px solid rgba(255,80,0,.25); }
+  .win-opp { background: #00091a; color: #0078ff; border: 1px solid rgba(0,120,255,.25); }
+  .win-tie { background: #111;    color: #777;    border: 1px solid #222; }
 
-    .reason {
-      font-size: 0.925rem;
-      color: var(--text-sec);
-      line-height: 1.6;
-      border-top: 1px solid var(--border);
-      padding-top: 0.875rem;
-    }
+  .result-reason {
+    padding: 1rem 1.5rem 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #999;
+    background: #0d0d0d;
+    border-top: 1px solid #1a1a1a;
+  }
 
-    .history {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+  /* generating pulse */
+  .generating {
+    display: inline-block;
+    animation: pulse 1s infinite alternate;
+    color: #ff5000;
+  }
 
-    .history-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-hint);
-      margin-bottom: 4px;
-    }
+  @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
 
-    .history-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 0.625rem 0.875rem;
-      font-size: 0.85rem;
-      color: var(--text-sec);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+  .error-msg { color: #ff4040; font-size: 0.85rem; margin-top: 1rem; text-align: center; }
 
-    .history-winner { font-weight: 600; color: var(--winner-text); }
-    .history-sep { color: var(--text-hint); }
-
-    .webgpu-warning {
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-      border-radius: var(--r-sm);
-      padding: 0.875rem 1rem;
-      font-size: 0.875rem;
-      color: var(--warning-text);
-      display: none;
-    }
-
-    .webgpu-warning.visible { display: block; }
-  </style>
+  .model-badge {
+    margin-top: 2rem;
+    font-size: 0.7rem;
+    color: #2a2a2a;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>Rock Paper <span class="accent">Anything</span></h1>
-  <p>Throw anything into the arena. The AI judge decides.</p>
-</header>
+<h1>Rock Paper Anything</h1>
 
-<div class="arena">
+<!-- LOAD SCREEN -->
+<div id="load-screen">
+  <p class="load-info">
+    This game runs your <strong>fine-tuned Llama 3.2 3B model</strong> locally via WebAssembly — no API, no server.<br><br>
+    First load downloads <strong>~2 GB</strong> and caches it. Subsequent visits are instant.
+  </p>
+  <button class="load-btn" id="load-btn" onclick="startLoad()">LOAD MODEL</button>
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-label">
+      <span>Downloading model</span>
+      <span id="pct-label">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-status" id="progress-status">Initialising…</div>
+  </div>
+</div>
 
-  <div class="webgpu-warning" id="webgpu-warn">
-    WebGPU is required to run the model in your browser. Please use Chrome 113+ or Edge on a device with a GPU.
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <div class="score-bar">
+    <div class="score-item you-score"><span class="score-num" id="score-you">0</span><span class="score-lbl">You</span></div>
+    <div class="score-item tie-score"><span class="score-num" id="score-tie">0</span><span class="score-lbl">Ties</span></div>
+    <div class="score-item opp-score"><span class="score-num" id="score-opp">0</span><span class="score-lbl">Opponent</span></div>
   </div>
 
-  <div class="inputs">
-    <input type="text" id="item-a" placeholder="e.g. fire" maxlength="60" aria-label="First item" />
-    <span class="vs" aria-hidden="true">vs</span>
-    <input type="text" id="item-b" placeholder="e.g. bureaucracy" maxlength="60" aria-label="Second item" />
-  </div>
-
-  <button id="fight-btn" disabled>Loading model...</button>
-
-  <div class="status-bar" id="status-bar" role="status" aria-live="polite">
-    <div class="spinner" id="spinner" aria-hidden="true"></div>
-    <div style="flex:1">
-      <div id="status-text">Downloading model — this takes a minute on first load, then it's cached.</div>
-      <div
-        id="progress-wrap"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="0"
-        aria-label="Model download progress"
-        style="display:none"
-      >
-        <div class="progress-track">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-label" id="progress-label"></div>
-      </div>
+  <div class="arena">
+    <div class="player-card">
+      <span class="player-lbl you">You</span>
+      <div class="choice-val" id="p1-val">—</div>
+      <input id="p1" placeholder="e.g. a black hole" oninput="updateVal('p1','p1-val')">
+    </div>
+    <div class="vs-sep">VS</div>
+    <div class="player-card">
+      <span class="player-lbl opp">Opponent</span>
+      <div class="choice-val" id="p2-val">—</div>
+      <input id="p2" placeholder="e.g. the concept of time" oninput="updateVal('p2','p2-val')">
     </div>
   </div>
 
-  <div class="result" id="result" aria-live="polite">
-    <div class="result-row">
-      <div class="item-card winner" id="r-winner">
-        <div class="item-label">Winner</div>
-        <div class="item-name" id="r-winner-name"></div>
-      </div>
-      <div class="item-card loser" id="r-loser">
-        <div class="item-label">Loser</div>
-        <div class="item-name" id="r-loser-name"></div>
-      </div>
-    </div>
-    <div class="reason" id="r-reason"></div>
+  <button class="fight-btn" id="fight-btn" onclick="fight()">FIGHT</button>
+  <div id="error-msg" class="error-msg" style="display:none"></div>
+  <div id="result-box" class="result-box" style="display:none">
+    <div class="result-header" id="result-header"></div>
+    <div class="result-reason" id="result-reason"></div>
   </div>
-
-  <div id="history-wrap" style="display:none">
-    <div class="history-title">Previous battles</div>
-    <div class="history" id="history"></div>
-  </div>
-
+  <div class="model-badge">olaughter/rockpaperanything · llama 3.2 3b · q4_k_m · wasm</div>
 </div>
 
 <script type="module">
-  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+  const MODEL_URL = 'https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf';
+  const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything.
+Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
+Think it through, then declare a winner with a punchy one-line explanation.
+Sometimes the small thing outwits the giant; sometimes the giant simply steps on it.
+Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.Follow the most interesting logic, not a formula.
+Be playful, be witty, but also be decisive. Never declare a tie.
+Reward creative submissions over lazy ones, gibberish input should generally perform worse.
+Respond with one JSON object only. No other text.
+Your response should be in the following format:
+{"winner": "x", "loser": "y", "reason": "..."}`;
 
-  // ---------------------------------------------------------------
-  // CONFIG — update MODEL_URL to your HuggingFace GGUF path
-  // ---------------------------------------------------------------
-  const MODEL_URL  = "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf";
-  const MODEL_LIB  = "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/Llama-3.2-3B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm";
+  let wllama = null;
+  let score = { you: 0, opp: 0, tie: 0 };
 
-  const SYSTEM_PROMPT = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd. Think it through, then declare a winner with a punchy one-line explanation. Sometimes the small thing outwits the giant; sometimes the giant simply steps on it. Sometimes the connection is literal, sometimes metaphorical, sometimes poetic. Follow the most interesting logic, not a formula. Be playful, be witty, but also be decisive. Never declare a tie. Reward creative submissions over lazy ones, gibberish input should generally perform worse. Respond with one JSON object only. No other text. Your response should be in the following format:  {"winner": "x", "loser": "y", "reason": "..."}`;
+  // ── helpers ──────────────────────────────────────────────
+  window.updateVal = (inputId, valId) => {
+    const v = document.getElementById(inputId).value.trim();
+    document.getElementById(valId).textContent = v || '—';
+  };
 
-  // ---------------------------------------------------------------
-  const $ = id => document.getElementById(id);
-  const statusText    = $("status-text");
-  const statusBar     = $("status-bar");
-  const spinner       = $("spinner");
-  const progressWrap  = $("progress-wrap");
-  const progressFill  = $("progress-fill");
-  const progressLabel = $("progress-label");
-  const fightBtn      = $("fight-btn");
-  const resultDiv     = $("result");
-  const historyWrap   = $("history-wrap");
-  const historyDiv    = $("history");
-
-  function setStatus(msg, showSpinner = true, progress = null, isError = false) {
-    statusBar.style.display = "flex";
-    statusBar.classList.toggle("error", isError);
-    spinner.style.display = (showSpinner && !isError) ? "block" : "none";
-    statusText.textContent = msg;
-    progressWrap.style.display = showSpinner && !isError ? "block" : "none";
-    if (progress !== null) {
-      const pct = Math.round(progress * 100);
-      progressWrap.setAttribute("aria-valuenow", pct);
-      progressFill.style.width = `${pct}%`;
-      progressLabel.textContent = `${pct}%`;
-    }
+  function setProgress(pct, status) {
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('pct-label').textContent = Math.round(pct) + '%';
+    if (status) document.getElementById('progress-status').textContent = status;
   }
 
-  function hideStatus() {
-    statusBar.style.display = "none";
-    statusBar.classList.remove("error");
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
   }
 
-  let engine;
-
-  if (!navigator.gpu) {
-    $("webgpu-warn").classList.add("visible");
-    setStatus("WebGPU not available in this browser.", false, null, true);
-  } else {
-
-  async function initEngine() {
-    try {
-    engine = await webllm.CreateMLCEngine(
-    "rockpaperanything",
-    {
-        appConfig: {
-        model_list: [{
-            model: MODEL_URL,
-            model_lib: MODEL_LIB,
-            model_id: "rockpaperanything",
-            overrides: {
-            context_window_size: 2048,
-            sliding_window_size: -1,
-            attention_sink_size: -1,
-            },
-        }],
-        },
-        initProgressCallback: (info) => {
-        setStatus(info.text ?? "Loading...", true, info.progress ?? null);
-        }
-    }
-    );
-
-      hideStatus();
-      fightBtn.disabled = false;
-      fightBtn.textContent = "Fight!";
-    } catch (err) {
-      setStatus(`Failed to load model: ${err.message}`, false, null, true);
-      console.error(err);
-    }
+  function hideError() {
+    document.getElementById('error-msg').style.display = 'none';
   }
 
-  async function fight() {
-    const a = $("item-a").value.trim();
-    const b = $("item-b").value.trim();
+  function buildPrompt(p1, p2) {
+    return `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${SYSTEM}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n["${p1}", "${p2}"]<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
+  }
 
-    if (!a || !b) {
-      $("item-a").focus();
+  function extractJSON(raw) {
+    const match = raw.match(/\{[\s\S]*?\}/);
+    if (!match) throw new Error('No JSON in output');
+    return JSON.parse(match[0]);
+  }
+
+  // ── load ─────────────────────────────────────────────────
+  window.startLoad = async () => {
+    if (location.protocol === 'file:') {
+      document.getElementById('progress-status').textContent = '';
+      document.getElementById('progress-wrap').classList.add('visible');
+      document.getElementById('progress-status').innerHTML =
+        '⚠️ Must be served over HTTP — open a terminal in this folder and run:<br><br>' +
+        '<code>npx serve .</code> &nbsp;or&nbsp; <code>python3 -m http.server 8080</code><br><br>' +
+        'Then open <strong>http://localhost:8080</strong>';
       return;
     }
 
-    fightBtn.disabled = true;
-    fightBtn.textContent = "Judging...";
-    setStatus("The judge is deliberating...", true);
-    resultDiv.classList.remove("visible");
+    const btn = document.getElementById('load-btn');
+    btn.disabled = true;
+    btn.textContent = 'LOADING…';
+    document.getElementById('progress-wrap').classList.add('visible');
+    setProgress(0, 'Fetching wllama…');
 
     try {
-      const reply = await engine.chat.completions.create({
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user",   content: JSON.stringify([a, b]) },
-        ],
-        temperature: 0.7,
-        top_p: 0.9,
-        max_tokens: 150,
+      const { Wllama } = await import('https://esm.sh/@wllama/wllama@2.3.7');
+
+      const WASM_BASE = 'https://unpkg.com/@wllama/wllama@2.3.7/src/';
+      wllama = new Wllama({
+        'single-thread/wllama.js':        WASM_BASE + 'single-thread/wllama.js',
+        'single-thread/wllama.wasm':      WASM_BASE + 'single-thread/wllama.wasm',
+        'multi-thread/wllama.js':         WASM_BASE + 'multi-thread/wllama.js',
+        'multi-thread/wllama.wasm':       WASM_BASE + 'multi-thread/wllama.wasm',
+        'multi-thread/wllama.worker.js':  WASM_BASE + 'multi-thread/wllama.worker.js',
       });
 
-      const raw = reply.choices[0].message.content.trim();
+      setProgress(2, 'Downloading model (2 GB — cached after first load)…');
 
-      const match = raw.match(/\{[^{}]*\}/);
-      if (!match) throw new Error("No JSON in response");
-      const data = JSON.parse(match[0]);
+      await wllama.loadModelFromUrl(MODEL_URL, {
+        progressCallback: ({ loaded, total }) => {
+          const pct = total ? (loaded / total) * 96 + 2 : 2;
+          const mb = (loaded / 1024 / 1024).toFixed(0);
+          const tot = total ? (total / 1024 / 1024).toFixed(0) : '?';
+          setProgress(pct, `${mb} / ${tot} MB`);
+        },
+      });
 
-      $("r-winner-name").textContent = data.winner ?? "?";
-      $("r-loser-name").textContent  = data.loser  ?? "?";
-      $("r-reason").textContent      = data.reason ?? "";
-      resultDiv.classList.add("visible");
+      setProgress(100, 'Ready!');
 
-      addHistory(data.winner, data.loser);
-      hideStatus();
+      // switch screens
+      document.getElementById('load-screen').style.display = 'none';
+      const game = document.getElementById('game-screen');
+      game.classList.add('visible');
+
+      // focus first input
+      document.getElementById('p1').focus();
+
+      // enter key support
+      ['p1','p2'].forEach(id => {
+        document.getElementById(id).addEventListener('keydown', e => {
+          if (e.key === 'Enter') window.fight();
+        });
+      });
 
     } catch (err) {
-      setStatus(`Something went wrong: ${err.message}`, false, null, true);
       console.error(err);
-    } finally {
-      fightBtn.disabled = false;
-      fightBtn.textContent = "Fight!";
+      btn.disabled = false;
+      btn.textContent = 'RETRY';
+      setProgress(0, 'Error: ' + err.message);
     }
-  }
+  };
 
-  function addHistory(winner, loser) {
-    historyWrap.style.display = "block";
-    const el = document.createElement("div");
-    el.className = "history-item";
+  // ── fight ─────────────────────────────────────────────────
+  window.fight = async () => {
+    const p1 = document.getElementById('p1').value.trim();
+    const p2 = document.getElementById('p2').value.trim();
+    if (!p1 || !p2 || !wllama) return;
 
-    const winnerSpan = document.createElement("span");
-    winnerSpan.className = "history-winner";
-    winnerSpan.textContent = winner;
+    hideError();
+    const btn = document.getElementById('fight-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="generating">THINKING…</span>';
 
-    const sepSpan = document.createElement("span");
-    sepSpan.className = "history-sep";
-    sepSpan.textContent = "beat";
+    document.getElementById('result-box').style.display = 'none';
 
-    const loserSpan = document.createElement("span");
-    loserSpan.textContent = loser;
+    try {
+      const prompt = buildPrompt(p1, p2);
+      const raw = await wllama.createCompletion(prompt, {
+        nPredict: 150,
+        sampling: { temp: 0.7, top_p: 0.9 },
+        stopTokens: [128001, 128009], // <|end_of_text|>, <|eot_id|>
+      });
 
-    el.append(winnerSpan, sepSpan, loserSpan);
-    historyDiv.insertBefore(el, historyDiv.firstChild);
-    while (historyDiv.children.length > 10) historyDiv.removeChild(historyDiv.lastChild);
-  }
+      const data = extractJSON(raw);
+      const { winner, reason } = data;
 
-  [$("item-a"), $("item-b")].forEach(input => {
-    input.addEventListener("keydown", e => { if (e.key === "Enter" && !fightBtn.disabled) fight(); });
-  });
+      // determine who won relative to p1/p2
+      const p1wins = winner.toLowerCase() === p1.toLowerCase();
+      const p2wins = winner.toLowerCase() === p2.toLowerCase();
 
-  fightBtn.addEventListener("click", () => {
-    if (!engine) return;
-    fight();
-  });
+      let cls, label;
+      if (p1wins)      { cls = 'win-you'; label = `${winner.toUpperCase()} WINS`; score.you++; }
+      else if (p2wins) { cls = 'win-opp'; label = `${winner.toUpperCase()} WINS`; score.opp++; }
+      else             { cls = 'win-you'; label = `${winner.toUpperCase()} WINS`; score.you++; } // fallback: trust model
 
-  initEngine();
-  } 
+      document.getElementById('result-header').className = 'result-header ' + cls;
+      document.getElementById('result-header').textContent = label;
+      document.getElementById('result-reason').textContent = reason || '—';
+      document.getElementById('result-box').style.display = 'block';
+
+      // update scores
+      document.getElementById('score-you').textContent = score.you;
+      document.getElementById('score-opp').textContent = score.opp;
+      document.getElementById('score-tie').textContent = score.tie;
+
+    } catch (err) {
+      console.error(err);
+      showError('Something went wrong parsing the model output. Try again.');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'FIGHT';
+  };
 </script>
 </body>
-<!-- V6 -->
 </html>
