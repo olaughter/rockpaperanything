@@ -376,7 +376,6 @@
   // ---------------------------------------------------------------
   // CONFIG — update MODEL_URL to your HuggingFace GGUF path
   // ---------------------------------------------------------------
-  const MODEL_ID   = "rockpaperanything";
   const MODEL_URL  = "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf";
   const MODEL_LIB  = "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/Llama-3.2-3B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm";
 
@@ -423,22 +422,26 @@
 
   async function initEngine() {
     try {
-      engine = await webllm.CreateMLCEngine(
-        MODEL_ID,
-        {
-          model_list: [{
+    engine = await webllm.CreateMLCEngine(
+    "rockpaperanything",
+    {
+        appConfig: {
+        model_list: [{
             model_url: MODEL_URL,
             model_lib: MODEL_LIB,
-            model_id: MODEL_ID,
-            overrides: { context_window_size: 2048 },
-          }],
+            model_id: "rockpaperanything",
+            overrides: {
+            context_window_size: 2048,
+            sliding_window_size: -1,
+            attention_sink_size: -1,
+            },
+        }],
         },
-        {
-          initProgressCallback: (info) => {
-            setStatus(info.text ?? "Loading...", true, info.progress ?? null);
-          }
+        initProgressCallback: (info) => {
+        setStatus(info.text ?? "Loading...", true, info.progress ?? null);
         }
-      );
+    }
+    );
 
       hideStatus();
       fightBtn.disabled = false;
@@ -531,5 +534,5 @@
   } 
 </script>
 </body>
-<!-- V3 -->
+<!-- V4 -->
 </html>
