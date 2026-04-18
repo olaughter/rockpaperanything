@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rock Paper Anything</title>
+  <link rel="icon" href="data:,">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -23,6 +24,9 @@
       --winner-border: #1D9E75;
       --loser-bg: #FCEBEB;
       --loser-text: #791F1F;
+      --warning-bg: #FAEEDA;
+      --warning-border: #EF9F27;
+      --warning-text: #633806;
       --r: 12px;
       --r-sm: 8px;
     }
@@ -44,6 +48,9 @@
         --winner-border: #1D9E75;
         --loser-bg: #501313;
         --loser-text: #F7C1C1;
+        --warning-bg: #412402;
+        --warning-border: #BA7517;
+        --warning-text: #FAC775;
       }
     }
 
@@ -70,9 +77,8 @@
       color: var(--text);
     }
 
-    h1 em {
+    h1 .accent {
       color: var(--accent);
-      font-style: normal;
     }
 
     header p {
@@ -127,7 +133,7 @@
       white-space: nowrap;
     }
 
-    button#fight-btn {
+    #fight-btn {
       width: 100%;
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
@@ -141,9 +147,9 @@
       transition: opacity 0.15s, transform 0.1s;
     }
 
-    button#fight-btn:hover { opacity: 0.9; }
-    button#fight-btn:active { transform: scale(0.98); }
-    button#fight-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    #fight-btn:hover { opacity: 0.9; }
+    #fight-btn:active { transform: scale(0.98); }
+    #fight-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
     .status-bar {
       background: var(--surface);
@@ -158,6 +164,11 @@
       min-height: 48px;
     }
 
+    .status-bar.error {
+      background: var(--loser-bg);
+      color: var(--loser-text);
+    }
+
     .spinner {
       width: 16px;
       height: 16px;
@@ -170,11 +181,12 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .progress-bar {
-      height: 3px;
+    .progress-track {
+      height: 4px;
       background: var(--border);
       border-radius: 2px;
       overflow: hidden;
+      margin-top: 7px;
     }
 
     .progress-fill {
@@ -183,6 +195,13 @@
       border-radius: 2px;
       transition: width 0.3s ease;
       width: 0%;
+    }
+
+    .progress-label {
+      font-size: 0.7rem;
+      color: var(--text-hint);
+      text-align: right;
+      margin-top: 3px;
     }
 
     .result {
@@ -276,21 +295,13 @@
     .history-sep { color: var(--text-hint); }
 
     .webgpu-warning {
-      background: #FAEEDA;
-      border: 1px solid #EF9F27;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
       border-radius: var(--r-sm);
       padding: 0.875rem 1rem;
       font-size: 0.875rem;
-      color: #633806;
+      color: var(--warning-text);
       display: none;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .webgpu-warning {
-        background: #412402;
-        border-color: #BA7517;
-        color: #FAC775;
-      }
     }
 
     .webgpu-warning.visible { display: block; }
@@ -299,7 +310,7 @@
 <body>
 
 <header>
-  <h1>Rock Paper <em>Anything</em></h1>
+  <h1>Rock Paper <span class="accent">Anything</span></h1>
   <p>Throw anything into the arena. The AI judge decides.</p>
 </header>
 
@@ -310,24 +321,35 @@
   </div>
 
   <div class="inputs">
-    <input type="text" id="item-a" placeholder="e.g. fire" maxlength="60" />
-    <span class="vs">vs</span>
-    <input type="text" id="item-b" placeholder="e.g. bureaucracy" maxlength="60" />
+    <input type="text" id="item-a" placeholder="e.g. fire" maxlength="60" aria-label="First item" />
+    <span class="vs" aria-hidden="true">vs</span>
+    <input type="text" id="item-b" placeholder="e.g. bureaucracy" maxlength="60" aria-label="Second item" />
   </div>
 
   <button id="fight-btn" disabled>Loading model...</button>
 
-  <div class="status-bar" id="status-bar">
-    <div class="spinner" id="spinner"></div>
+  <div class="status-bar" id="status-bar" role="status" aria-live="polite">
+    <div class="spinner" id="spinner" aria-hidden="true"></div>
     <div style="flex:1">
       <div id="status-text">Downloading model — this takes a minute on first load, then it's cached.</div>
-      <div class="progress-bar" id="progress-wrap" style="margin-top:6px">
-        <div class="progress-fill" id="progress-fill"></div>
+      <div
+        id="progress-wrap"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Model download progress"
+        style="display:none"
+      >
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-label" id="progress-label"></div>
       </div>
     </div>
   </div>
 
-  <div class="result" id="result">
+  <div class="result" id="result" aria-live="polite">
     <div class="result-row">
       <div class="item-card winner" id="r-winner">
         <div class="item-label">Winner</div>
@@ -362,35 +384,42 @@
 
   // ---------------------------------------------------------------
   const $ = id => document.getElementById(id);
-  const statusText  = $("status-text");
-  const statusBar   = $("status-bar");
-  const spinner     = $("spinner");
-  const progressFill = $("progress-fill");
-  const fightBtn    = $("fight-btn");
-  const resultDiv   = $("result");
-  const historyWrap = $("history-wrap");
-  const historyDiv  = $("history");
+  const statusText    = $("status-text");
+  const statusBar     = $("status-bar");
+  const spinner       = $("spinner");
+  const progressWrap  = $("progress-wrap");
+  const progressFill  = $("progress-fill");
+  const progressLabel = $("progress-label");
+  const fightBtn      = $("fight-btn");
+  const resultDiv     = $("result");
+  const historyWrap   = $("history-wrap");
+  const historyDiv    = $("history");
 
-  function setStatus(msg, showSpinner = true, progress = null) {
+  function setStatus(msg, showSpinner = true, progress = null, isError = false) {
+    statusBar.style.display = "flex";
+    statusBar.classList.toggle("error", isError);
+    spinner.style.display = (showSpinner && !isError) ? "block" : "none";
     statusText.textContent = msg;
-    spinner.style.display = showSpinner ? "block" : "none";
     if (progress !== null) {
-      progressFill.style.width = `${Math.round(progress * 100)}%`;
-      $("progress-wrap").style.display = "block";
+      const pct = Math.round(progress * 100);
+      progressWrap.style.display = "block";
+      progressWrap.setAttribute("aria-valuenow", pct);
+      progressFill.style.width = `${pct}%`;
+      progressLabel.textContent = `${pct}%`;
     }
   }
 
   function hideStatus() {
     statusBar.style.display = "none";
+    statusBar.classList.remove("error");
   }
 
-  // Check WebGPU
   if (!navigator.gpu) {
     $("webgpu-warn").classList.add("visible");
-    setStatus("WebGPU not available in this browser.", false);
+    setStatus("WebGPU not available in this browser.", false, null, true);
     return;
   }
-
+  
   let engine;
 
   async function initEngine() {
@@ -407,8 +436,7 @@
         },
         {
           initProgressCallback: (info) => {
-            const pct = info.progress ?? null;
-            setStatus(info.text ?? "Loading...", true, pct);
+            setStatus(info.text ?? "Loading...", true, info.progress ?? null);
           }
         }
       );
@@ -417,7 +445,7 @@
       fightBtn.disabled = false;
       fightBtn.textContent = "Fight!";
     } catch (err) {
-      setStatus(`Failed to load model: ${err.message}`, false);
+      setStatus(`Failed to load model: ${err.message}`, false, null, true);
       console.error(err);
     }
   }
@@ -433,7 +461,6 @@
 
     fightBtn.disabled = true;
     fightBtn.textContent = "Judging...";
-    statusBar.style.display = "flex";
     setStatus("The judge is deliberating...", true);
     resultDiv.classList.remove("visible");
 
@@ -450,27 +477,24 @@
 
       const raw = reply.choices[0].message.content.trim();
 
-      // Extract first JSON object
       const match = raw.match(/\{[^{}]*\}/);
       if (!match) throw new Error("No JSON in response");
       const data = JSON.parse(match[0]);
 
-      // Render result
       $("r-winner-name").textContent = data.winner ?? "?";
       $("r-loser-name").textContent  = data.loser  ?? "?";
       $("r-reason").textContent      = data.reason ?? "";
       resultDiv.classList.add("visible");
 
-      // Add to history
       addHistory(data.winner, data.loser);
+      hideStatus();
 
     } catch (err) {
-      setStatus(`Something went wrong: ${err.message}`, false);
+      setStatus(`Something went wrong: ${err.message}`, false, null, true);
       console.error(err);
     } finally {
       fightBtn.disabled = false;
       fightBtn.textContent = "Fight!";
-      hideStatus();
     }
   }
 
@@ -478,13 +502,23 @@
     historyWrap.style.display = "block";
     const el = document.createElement("div");
     el.className = "history-item";
-    el.innerHTML = `<span class="history-winner">${winner}</span><span class="history-sep">beat</span><span>${loser}</span>`;
+
+    const winnerSpan = document.createElement("span");
+    winnerSpan.className = "history-winner";
+    winnerSpan.textContent = winner;
+
+    const sepSpan = document.createElement("span");
+    sepSpan.className = "history-sep";
+    sepSpan.textContent = "beat";
+
+    const loserSpan = document.createElement("span");
+    loserSpan.textContent = loser;
+
+    el.append(winnerSpan, sepSpan, loserSpan);
     historyDiv.insertBefore(el, historyDiv.firstChild);
-    // Keep last 10
     while (historyDiv.children.length > 10) historyDiv.removeChild(historyDiv.lastChild);
   }
 
-  // Keyboard shortcut
   [$("item-a"), $("item-b")].forEach(input => {
     input.addEventListener("keydown", e => { if (e.key === "Enter" && !fightBtn.disabled) fight(); });
   });
@@ -495,6 +529,8 @@
   });
 
   initEngine();
+
+//   V2
 </script>
 </body>
 </html>
