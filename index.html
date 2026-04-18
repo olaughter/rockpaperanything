@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<script src="./coi-serviceworker.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rock Paper Anything</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,12 +53,7 @@
     margin-bottom: 2.5rem;
   }
 
-  /* ── LOAD SCREEN ── */
-  #load-screen {
-    width: 100%;
-    max-width: 520px;
-    text-align: center;
-  }
+  #load-screen { width: 100%; max-width: 520px; text-align: center; }
 
   .load-info {
     font-size: 0.8rem;
@@ -67,7 +61,6 @@
     margin-bottom: 2rem;
     line-height: 1.6;
   }
-
   .load-info strong { color: #888; }
 
   .load-btn {
@@ -83,15 +76,10 @@
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
   }
-
   .load-btn:hover { background: #ff6a20; transform: translateY(-1px); }
   .load-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  .progress-wrap {
-    margin-top: 1.5rem;
-    display: none;
-  }
-
+  .progress-wrap { margin-top: 1.5rem; display: none; }
   .progress-wrap.visible { display: block; }
 
   .progress-label {
@@ -104,54 +92,22 @@
     justify-content: space-between;
   }
 
-  .progress-bar-bg {
-    height: 4px;
-    background: #1a1a1a;
-    border-radius: 2px;
-    overflow: hidden;
-  }
+  .progress-bar-bg { height: 4px; background: #1a1a1a; border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: #ff5000; border-radius: 2px; transition: width 0.3s ease; width: 0%; }
+  .progress-status { font-size: 0.72rem; color: #444; margin-top: 0.5rem; text-align: center; min-height: 1.2em; line-height: 1.5; }
 
-  .progress-bar-fill {
-    height: 100%;
-    background: #ff5000;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-    width: 0%;
-  }
-
-  .progress-status {
-    font-size: 0.75rem;
-    color: #444;
-    margin-top: 0.5rem;
-    text-align: center;
-    min-height: 1.2em;
-  }
-
-  /* ── GAME SCREEN ── */
   #game-screen { display: none; width: 100%; max-width: 700px; }
   #game-screen.visible { display: flex; flex-direction: column; align-items: center; }
 
-  .score-bar {
-    display: flex;
-    gap: 2.5rem;
-    margin-bottom: 2rem;
-    font-family: 'Bebas Neue', sans-serif;
-  }
-
+  .score-bar { display: flex; gap: 2.5rem; margin-bottom: 2rem; font-family: 'Bebas Neue', sans-serif; }
   .score-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
   .score-num { font-size: 2.2rem; line-height: 1; }
   .score-lbl { font-size: 0.65rem; font-family: 'DM Sans', sans-serif; letter-spacing: 0.15em; text-transform: uppercase; color: #444; }
-  .you-score  .score-num { color: #ff5000; }
-  .opp-score  .score-num { color: #0078ff; }
-  .tie-score  .score-num { color: #444; }
+  .you-score .score-num { color: #ff5000; }
+  .opp-score .score-num { color: #0078ff; }
+  .tie-score .score-num { color: #444; }
 
-  .arena {
-    display: flex;
-    gap: 1.5rem;
-    align-items: stretch;
-    width: 100%;
-    margin-bottom: 1.5rem;
-  }
+  .arena { display: flex; gap: 1.5rem; align-items: stretch; width: 100%; margin-bottom: 1.5rem; }
 
   .player-card {
     flex: 1;
@@ -164,13 +120,7 @@
     gap: 0.75rem;
   }
 
-  .player-lbl {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #333;
-  }
-
+  .player-lbl { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #333; }
   .player-lbl.you { color: #ff5000; }
   .player-lbl.opp { color: #0078ff; }
 
@@ -195,7 +145,6 @@
     outline: none;
     transition: border-color 0.2s;
   }
-
   input:focus { border-color: #ff5000; }
   input::placeholder { color: #2a2a2a; }
 
@@ -222,72 +171,34 @@
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
   }
-
   .fight-btn:hover:not(:disabled) { background: #ff6a20; transform: translateY(-1px); }
   .fight-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  /* ── RESULT ── */
-  .result-box {
-    width: 100%;
-    margin-top: 1.5rem;
-    border-radius: 12px;
-    overflow: hidden;
-    animation: fadeUp 0.35s ease;
-  }
+  .result-box { width: 100%; margin-top: 1.5rem; border-radius: 12px; overflow: hidden; animation: fadeUp 0.35s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .result-header {
-    padding: 1.25rem 1.5rem;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.4rem;
-    letter-spacing: 0.05em;
-  }
-
+  .result-header { padding: 1.25rem 1.5rem; font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 0.05em; }
   .win-you { background: #1a0f00; color: #ff5000; border: 1px solid rgba(255,80,0,.25); }
   .win-opp { background: #00091a; color: #0078ff; border: 1px solid rgba(0,120,255,.25); }
-  .win-tie { background: #111;    color: #777;    border: 1px solid #222; }
+  .win-tie { background: #111; color: #777; border: 1px solid #222; }
 
-  .result-reason {
-    padding: 1rem 1.5rem 1.5rem;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #999;
-    background: #0d0d0d;
-    border-top: 1px solid #1a1a1a;
-  }
+  .result-reason { padding: 1rem 1.5rem 1.5rem; font-size: 0.95rem; line-height: 1.7; color: #999; background: #0d0d0d; border-top: 1px solid #1a1a1a; }
 
-  /* generating pulse */
-  .generating {
-    display: inline-block;
-    animation: pulse 1s infinite alternate;
-    color: #ff5000;
-  }
-
+  .generating { display: inline-block; animation: pulse 1s infinite alternate; color: #ff5000; }
   @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
 
   .error-msg { color: #ff4040; font-size: 0.85rem; margin-top: 1rem; text-align: center; }
-
-  .model-badge {
-    margin-top: 2rem;
-    font-size: 0.7rem;
-    color: #2a2a2a;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+  .model-badge { margin-top: 2rem; font-size: 0.7rem; color: #2a2a2a; letter-spacing: 0.1em; text-transform: uppercase; }
 </style>
 </head>
 <body>
 
-<h1>ROCK PAPER ANYTHING</h1>
+<h1>ANYTHING GOES</h1>
+<p class="subtitle">Rock Paper Scissors — WebGPU edition</p>
 
-<!-- LOAD SCREEN -->
 <div id="load-screen">
   <p class="load-info">
-    An open ended twist on the classic game.
+    An open ended twist on the classic game.<br><br>
     This game runs a <strong>fine-tuned Llama 3.2 3B model</strong> locally via WebAssembly.<br><br>
     First load downloads <strong>~2 GB</strong> and caches it. Subsequent visits will start faster.
   </p>
@@ -298,11 +209,10 @@
       <span id="pct-label">0%</span>
     </div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
-    <div class="progress-status" id="progress-status">Initialising…</div>
+    <div class="progress-status" id="progress-status"></div>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
 <div id="game-screen">
   <div class="score-bar">
     <div class="score-item you-score"><span class="score-num" id="score-you">0</span><span class="score-lbl">You</span></div>
@@ -330,34 +240,47 @@
     <div class="result-header" id="result-header"></div>
     <div class="result-reason" id="result-reason"></div>
   </div>
-  <div class="model-badge">olaughter/rockpaperanything · llama 3.2 3b · q4_k_m</div>
 </div>
 
 <script type="module">
-  const MODEL_URL = 'https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf';
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
   const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. 
 Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
 Think it through, then declare a winner with a punchy one-line explanation.
 Sometimes the small thing outwits the giant; sometimes the giant simply steps on it.
-Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.
-Follow the most interesting logic, not a formula. Be playful, be witty, but also be decisive. Never declare a tie.
+Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.Follow the most interesting logic, not a formula.
+Be playful, be witty, but also be decisive. Never declare a tie.
 Reward creative submissions over lazy ones, gibberish input should generally perform worse.
 Respond with one JSON object only. No other text.
-Your response should be in the following format: 
+Your response should be in the following format:
 {"winner": "x", "loser": "y", "reason": "..."}`;
 
-  let wllama = null;
+  // ── Custom model config pointing to your HF repo ──────────
+  const appConfig = {
+    model_list: [
+      {
+        model: "https://huggingface.co/olaughter/rpa_mlc",
+        model_id: "rpa-v1",
+        // Reuses the Llama 3.2 3B architecture WASM — same arch as your base model
+        model_lib: webllm.modelLibURLPrefix + webllm.modelVersion
+          + "/Llama-3.2-3B-Instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
+      }
+    ]
+  };
+
+  let engine = null;
   let score = { you: 0, opp: 0, tie: 0 };
 
-  // ── helpers ──────────────────────────────────────────────
+  // ── helpers ───────────────────────────────────────────────
   window.updateVal = (inputId, valId) => {
     const v = document.getElementById(inputId).value.trim();
     document.getElementById(valId).textContent = v || '—';
   };
 
   function setProgress(pct, status) {
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('pct-label').textContent = Math.round(pct) + '%';
+    document.getElementById('progress-fill').style.width = Math.min(pct, 100) + '%';
+    document.getElementById('pct-label').textContent = Math.round(Math.min(pct, 100)) + '%';
     if (status) document.getElementById('progress-status').textContent = status;
   }
 
@@ -371,25 +294,19 @@ Your response should be in the following format:
     document.getElementById('error-msg').style.display = 'none';
   }
 
-  function buildPrompt(p1, p2) {
-    return `<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n${SYSTEM}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n["${p1}", "${p2}"]<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`;
-  }
-
   function extractJSON(raw) {
     const match = raw.match(/\{[\s\S]*?\}/);
-    if (!match) throw new Error('No JSON in output');
+    if (!match) throw new Error('No JSON found in model output');
     return JSON.parse(match[0]);
   }
 
-  // ── load ─────────────────────────────────────────────────
+  // ── load ──────────────────────────────────────────────────
   window.startLoad = async () => {
-    if (location.protocol === 'file:') {
-      document.getElementById('progress-status').textContent = '';
-      document.getElementById('progress-wrap').classList.add('visible');
-      document.getElementById('progress-status').innerHTML =
-        '⚠️ Must be served over HTTP — open a terminal in this folder and run:<br><br>' +
-        '<code>npx serve .</code> &nbsp;or&nbsp; <code>python3 -m http.server 8080</code><br><br>' +
-        'Then open <strong>http://localhost:8080</strong>';
+    // Check WebGPU availability
+    if (!navigator.gpu) {
+      document.getElementById('load-info').innerHTML =
+        '❌ <strong>WebGPU not available</strong> in this browser.<br><br>' +
+        'Use Chrome 113+ on desktop. Firefox and Safari do not support WebGPU yet.';
       return;
     }
 
@@ -397,45 +314,22 @@ Your response should be in the following format:
     btn.disabled = true;
     btn.textContent = 'LOADING…';
     document.getElementById('progress-wrap').classList.add('visible');
-    setProgress(0, 'Fetching wllama…');
+    setProgress(0, 'Initialising WebGPU…');
 
     try {
-      const { Wllama } = await import('https://unpkg.com/@wllama/wllama@2.3.7/esm/index.js');
-
-      const WASM_BASE = 'https://unpkg.com/@wllama/wllama@2.3.7/esm/';
-      wllama = new Wllama({
-        'single-thread/wllama.js':         WASM_BASE + 'single-thread/wllama.js',
-        'single-thread/wllama.wasm':       WASM_BASE + 'single-thread/wllama.wasm',
-        'multi-thread/wllama.js':          WASM_BASE + 'multi-thread/wllama.js',
-        'multi-thread/wllama.wasm':        WASM_BASE + 'multi-thread/wllama.wasm',
-        'multi-thread/wllama.worker.mjs':  WASM_BASE + 'multi-thread/wllama.worker.mjs',
-      });
-
-      setProgress(2, 'Downloading model (2 GB — cached after first load)…');
-      const threads = navigator.hardwareConcurrency || 4;
-
-      await wllama.loadModelFromUrl(MODEL_URL, {
-        n_threads: threads,
-        progressCallback: ({ loaded, total }) => {
-          const pct = total ? (loaded / total) * 96 + 2 : 2;
-          const mb = (loaded / 1024 / 1024).toFixed(0);
-          const tot = total ? (total / 1024 / 1024).toFixed(0) : '?';
-          setProgress(pct, `${mb} / ${tot} MB`);
+      engine = await webllm.CreateMLCEngine("rpa-v1", {
+        appConfig,
+        initProgressCallback: ({ progress, text }) => {
+          setProgress(progress * 100, text);
         },
       });
 
       setProgress(100, 'Ready!');
-
-      // switch screens
       document.getElementById('load-screen').style.display = 'none';
-      const game = document.getElementById('game-screen');
-      game.classList.add('visible');
-
-      // focus first input
+      document.getElementById('game-screen').classList.add('visible');
       document.getElementById('p1').focus();
 
-      // enter key support
-      ['p1','p2'].forEach(id => {
+      ['p1', 'p2'].forEach(id => {
         document.getElementById(id).addEventListener('keydown', e => {
           if (e.key === 'Enter') window.fight();
         });
@@ -453,55 +347,60 @@ Your response should be in the following format:
   window.fight = async () => {
     const p1 = document.getElementById('p1').value.trim();
     const p2 = document.getElementById('p2').value.trim();
-    if (!p1 || !p2 || !wllama) return;
+    if (!p1 || !p2 || !engine) return;
 
     hideError();
     const btn = document.getElementById('fight-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="generating">THINKING…</span>';
 
-    // show result box immediately so user sees tokens stream in
     document.getElementById('result-header').className = 'result-header win-tie';
     document.getElementById('result-header').textContent = 'GENERATING…';
     document.getElementById('result-reason').textContent = '';
     document.getElementById('result-box').style.display = 'block';
 
     try {
-      const prompt = buildPrompt(p1, p2);
-      const raw = await wllama.createCompletion(prompt, {
-        nPredict: 80,
-        sampling: { temp: 0.7, top_p: 0.9 },
-        stopTokens: [128001, 128009],
-        onNewToken: (_token, _piece, currentText) => {
-          document.getElementById('result-reason').textContent = currentText;
-        },
+      let raw = '';
+      const stream = await engine.chat.completions.create({
+        messages: [
+          { role: 'system', content: SYSTEM },
+          { role: 'user',   content: `["${p1}", "${p2}"]` },
+        ],
+        max_tokens: 80,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: true,
       });
+
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta?.content || '';
+        raw += delta;
+        document.getElementById('result-reason').textContent = raw;
+      }
 
       const data = extractJSON(raw);
       const { winner, reason } = data;
 
-      // determine who won relative to p1/p2
       const p1wins = winner.toLowerCase() === p1.toLowerCase();
       const p2wins = winner.toLowerCase() === p2.toLowerCase();
 
-      let cls, label;
-      if (p1wins)      { cls = 'win-you'; label = `${winner.toUpperCase()} WINS`; score.you++; }
-      else if (p2wins) { cls = 'win-opp'; label = `${winner.toUpperCase()} WINS`; score.opp++; }
-      else             { cls = 'win-you'; label = `${winner.toUpperCase()} WINS`; score.you++; } // fallback: trust model
+      let cls;
+      if (p1wins)      { cls = 'win-you'; score.you++; }
+      else if (p2wins) { cls = 'win-opp'; score.opp++; }
+      else             { cls = 'win-you'; score.you++; }
 
       document.getElementById('result-header').className = 'result-header ' + cls;
-      document.getElementById('result-header').textContent = label;
+      document.getElementById('result-header').textContent = winner.toUpperCase() + ' WINS';
       document.getElementById('result-reason').textContent = reason || '—';
-      document.getElementById('result-box').style.display = 'block';
 
-      // update scores
       document.getElementById('score-you').textContent = score.you;
       document.getElementById('score-opp').textContent = score.opp;
       document.getElementById('score-tie').textContent = score.tie;
 
     } catch (err) {
       console.error(err);
-      showError('Something went wrong parsing the model output. Try again.');
+      showError('Something went wrong. Try again.');
+      document.getElementById('result-box').style.display = 'none';
     }
 
     btn.disabled = false;
