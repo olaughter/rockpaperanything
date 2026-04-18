@@ -281,7 +281,8 @@
 </head>
 <body>
 
-<h1>Rock Paper Anything</h1>
+<h1>ANYTHING GOES</h1>
+<p class="subtitle">Rock Paper Scissors — runs entirely in your browser</p>
 
 <!-- LOAD SCREEN -->
 <div id="load-screen">
@@ -398,15 +399,15 @@ Your response should be in the following format:
     setProgress(0, 'Fetching wllama…');
 
     try {
-      const { Wllama } = await import('https://esm.sh/@wllama/wllama@2.3.7');
+      const { Wllama } = await import('https://unpkg.com/@wllama/wllama@2.3.7/esm/index.js');
 
-      const WASM_BASE = 'https://unpkg.com/@wllama/wllama@2.3.7/src/';
+      const WASM_BASE = 'https://unpkg.com/@wllama/wllama@2.3.7/esm/';
       wllama = new Wllama({
-        'single-thread/wllama.js':        WASM_BASE + 'single-thread/wllama.js',
-        'single-thread/wllama.wasm':      WASM_BASE + 'single-thread/wllama.wasm',
-        'multi-thread/wllama.js':         WASM_BASE + 'multi-thread/wllama.js',
-        'multi-thread/wllama.wasm':       WASM_BASE + 'multi-thread/wllama.wasm',
-        'multi-thread/wllama.worker.js':  WASM_BASE + 'multi-thread/wllama.worker.js',
+        'single-thread/wllama.js':         WASM_BASE + 'single-thread/wllama.js',
+        'single-thread/wllama.wasm':       WASM_BASE + 'single-thread/wllama.wasm',
+        'multi-thread/wllama.js':          WASM_BASE + 'multi-thread/wllama.js',
+        'multi-thread/wllama.wasm':        WASM_BASE + 'multi-thread/wllama.wasm',
+        'multi-thread/wllama.worker.mjs':  WASM_BASE + 'multi-thread/wllama.worker.mjs',
       });
 
       setProgress(2, 'Downloading model (2 GB — cached after first load)…');
