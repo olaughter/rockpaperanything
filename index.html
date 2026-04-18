@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Anything</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f8f5;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.2);
+      --text: #1a1a18;
+      --text-sec: #5f5e5a;
+      --text-hint: #888780;
+      --accent: #D85A30;
+      --accent-bg: #FAECE7;
+      --accent-text: #712B13;
+      --winner-bg: #E1F5EE;
+      --winner-text: #085041;
+      --winner-border: #1D9E75;
+      --loser-bg: #FCEBEB;
+      --loser-text: #791F1F;
+      --r: 12px;
+      --r-sm: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --surface: #242422;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.2);
+        --text: #e8e6e0;
+        --text-sec: #b4b2a9;
+        --text-hint: #888780;
+        --accent: #F0997B;
+        --accent-bg: #4A1B0C;
+        --accent-text: #F5C4B3;
+        --winner-bg: #04342C;
+        --winner-text: #9FE1CB;
+        --winner-border: #1D9E75;
+        --loser-bg: #501313;
+        --loser-text: #F7C1C1;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.5rem 1rem 5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    h1 em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--text-sec);
+    }
+
+    .arena {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-sm);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-hint);
+    }
+
+    .vs {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-hint);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    button#fight-btn {
+      width: 100%;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    button#fight-btn:hover { opacity: 0.9; }
+    button#fight-btn:active { transform: scale(0.98); }
+    button#fight-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .status-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border-strong);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .result {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.25rem;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .item-card {
+      padding: 0.875rem 1rem;
+      border-radius: var(--r-sm);
+      text-align: center;
+    }
+
+    .item-card.winner {
+      background: var(--winner-bg);
+      border: 1.5px solid var(--winner-border);
+    }
+
+    .item-card.loser {
+      background: var(--loser-bg);
+      border: 1px solid var(--border);
+    }
+
+    .item-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .item-card.winner .item-label { color: var(--winner-text); }
+    .item-card.loser .item-label { color: var(--loser-text); }
+
+    .item-name {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .item-card.winner .item-name { color: var(--winner-text); }
+    .item-card.loser .item-name { color: var(--loser-text); }
+
+    .reason {
+      font-size: 0.925rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 0.875rem;
+    }
+
+    .history {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-hint);
+      margin-bottom: 4px;
+    }
+
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 0.625rem 0.875rem;
+      font-size: 0.85rem;
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-winner { font-weight: 600; color: var(--winner-text); }
+    .history-sep { color: var(--text-hint); }
+
+    .webgpu-warning {
+      background: #FAEEDA;
+      border: 1px solid #EF9F27;
+      border-radius: var(--r-sm);
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+      color: #633806;
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .webgpu-warning {
+        background: #412402;
+        border-color: #BA7517;
+        color: #FAC775;
+      }
+    }
+
+    .webgpu-warning.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Rock Paper <em>Anything</em></h1>
+  <p>Throw anything into the arena. The AI judge decides.</p>
+</header>
+
+<div class="arena">
+
+  <div class="webgpu-warning" id="webgpu-warn">
+    WebGPU is required to run the model in your browser. Please use Chrome 113+ or Edge on a device with a GPU.
+  </div>
+
+  <div class="inputs">
+    <input type="text" id="item-a" placeholder="e.g. fire" maxlength="60" />
+    <span class="vs">vs</span>
+    <input type="text" id="item-b" placeholder="e.g. bureaucracy" maxlength="60" />
+  </div>
+
+  <button id="fight-btn" disabled>Loading model...</button>
+
+  <div class="status-bar" id="status-bar">
+    <div class="spinner" id="spinner"></div>
+    <div style="flex:1">
+      <div id="status-text">Downloading model — this takes a minute on first load, then it's cached.</div>
+      <div class="progress-bar" id="progress-wrap" style="margin-top:6px">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-row">
+      <div class="item-card winner" id="r-winner">
+        <div class="item-label">Winner</div>
+        <div class="item-name" id="r-winner-name"></div>
+      </div>
+      <div class="item-card loser" id="r-loser">
+        <div class="item-label">Loser</div>
+        <div class="item-name" id="r-loser-name"></div>
+      </div>
+    </div>
+    <div class="reason" id="r-reason"></div>
+  </div>
+
+  <div id="history-wrap" style="display:none">
+    <div class="history-title">Previous battles</div>
+    <div class="history" id="history"></div>
+  </div>
+
+</div>
+
+<script type="module">
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+  // ---------------------------------------------------------------
+  // CONFIG — update MODEL_URL to your HuggingFace GGUF path
+  // ---------------------------------------------------------------
+  const MODEL_ID   = "rockpaperanything";
+  const MODEL_URL  = "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf";
+  const MODEL_LIB  = "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_48/Llama-3.2-3B-Instruct-q4f32_1-ctx4k_cs1k-webgpu.wasm";
+
+  const SYSTEM_PROMPT = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd. Think it through, then declare a winner with a punchy one-line explanation. Sometimes the small thing outwits the giant; sometimes the giant simply steps on it. Sometimes the connection is literal, sometimes metaphorical, sometimes poetic. Follow the most interesting logic, not a formula. Be playful, be witty, but also be decisive. Never declare a tie. Reward creative submissions over lazy ones, gibberish input should generally perform worse. Respond with one JSON object only. No other text. Your response should be in the following format:  {"winner": "x", "loser": "y", "reason": "..."}`;
+
+  // ---------------------------------------------------------------
+  const $ = id => document.getElementById(id);
+  const statusText  = $("status-text");
+  const statusBar   = $("status-bar");
+  const spinner     = $("spinner");
+  const progressFill = $("progress-fill");
+  const fightBtn    = $("fight-btn");
+  const resultDiv   = $("result");
+  const historyWrap = $("history-wrap");
+  const historyDiv  = $("history");
+
+  function setStatus(msg, showSpinner = true, progress = null) {
+    statusText.textContent = msg;
+    spinner.style.display = showSpinner ? "block" : "none";
+    if (progress !== null) {
+      progressFill.style.width = `${Math.round(progress * 100)}%`;
+      $("progress-wrap").style.display = "block";
+    }
+  }
+
+  function hideStatus() {
+    statusBar.style.display = "none";
+  }
+
+  // Check WebGPU
+  if (!navigator.gpu) {
+    $("webgpu-warn").classList.add("visible");
+    setStatus("WebGPU not available in this browser.", false);
+    return;
+  }
+
+  let engine;
+
+  async function initEngine() {
+    try {
+      engine = await webllm.CreateMLCEngine(
+        MODEL_ID,
+        {
+          model_list: [{
+            model_url: MODEL_URL,
+            model_lib: MODEL_LIB,
+            model_id: MODEL_ID,
+            overrides: { context_window_size: 2048 },
+          }],
+        },
+        {
+          initProgressCallback: (info) => {
+            const pct = info.progress ?? null;
+            setStatus(info.text ?? "Loading...", true, pct);
+          }
+        }
+      );
+
+      hideStatus();
+      fightBtn.disabled = false;
+      fightBtn.textContent = "Fight!";
+    } catch (err) {
+      setStatus(`Failed to load model: ${err.message}`, false);
+      console.error(err);
+    }
+  }
+
+  async function fight() {
+    const a = $("item-a").value.trim();
+    const b = $("item-b").value.trim();
+
+    if (!a || !b) {
+      $("item-a").focus();
+      return;
+    }
+
+    fightBtn.disabled = true;
+    fightBtn.textContent = "Judging...";
+    statusBar.style.display = "flex";
+    setStatus("The judge is deliberating...", true);
+    resultDiv.classList.remove("visible");
+
+    try {
+      const reply = await engine.chat.completions.create({
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user",   content: JSON.stringify([a, b]) },
+        ],
+        temperature: 0.7,
+        top_p: 0.9,
+        max_tokens: 150,
+      });
+
+      const raw = reply.choices[0].message.content.trim();
+
+      // Extract first JSON object
+      const match = raw.match(/\{[^{}]*\}/);
+      if (!match) throw new Error("No JSON in response");
+      const data = JSON.parse(match[0]);
+
+      // Render result
+      $("r-winner-name").textContent = data.winner ?? "?";
+      $("r-loser-name").textContent  = data.loser  ?? "?";
+      $("r-reason").textContent      = data.reason ?? "";
+      resultDiv.classList.add("visible");
+
+      // Add to history
+      addHistory(data.winner, data.loser);
+
+    } catch (err) {
+      setStatus(`Something went wrong: ${err.message}`, false);
+      console.error(err);
+    } finally {
+      fightBtn.disabled = false;
+      fightBtn.textContent = "Fight!";
+      hideStatus();
+    }
+  }
+
+  function addHistory(winner, loser) {
+    historyWrap.style.display = "block";
+    const el = document.createElement("div");
+    el.className = "history-item";
+    el.innerHTML = `<span class="history-winner">${winner}</span><span class="history-sep">beat</span><span>${loser}</span>`;
+    historyDiv.insertBefore(el, historyDiv.firstChild);
+    // Keep last 10
+    while (historyDiv.children.length > 10) historyDiv.removeChild(historyDiv.lastChild);
+  }
+
+  // Keyboard shortcut
+  [$("item-a"), $("item-b")].forEach(input => {
+    input.addEventListener("keydown", e => { if (e.key === "Enter" && !fightBtn.disabled) fight(); });
+  });
+
+  fightBtn.addEventListener("click", () => {
+    if (!engine) return;
+    fight();
+  });
+
+  initEngine();
+</script>
+</body>
+</html>
