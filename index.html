@@ -400,9 +400,9 @@
     statusBar.classList.toggle("error", isError);
     spinner.style.display = (showSpinner && !isError) ? "block" : "none";
     statusText.textContent = msg;
+    progressWrap.style.display = showSpinner && !isError ? "block" : "none";
     if (progress !== null) {
       const pct = Math.round(progress * 100);
-      progressWrap.style.display = "block";
       progressWrap.setAttribute("aria-valuenow", pct);
       progressFill.style.width = `${pct}%`;
       progressLabel.textContent = `${pct}%`;
@@ -414,13 +414,12 @@
     statusBar.classList.remove("error");
   }
 
+  let engine;
+
   if (!navigator.gpu) {
     $("webgpu-warn").classList.add("visible");
     setStatus("WebGPU not available in this browser.", false, null, true);
-    return;
-  }
-  
-  let engine;
+  } else {
 
   async function initEngine() {
     try {
@@ -529,8 +528,8 @@
   });
 
   initEngine();
-
-//   V2
+  } 
 </script>
 </body>
+<!-- V3 -->
 </html>
