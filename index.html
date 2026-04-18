@@ -281,14 +281,14 @@
 </head>
 <body>
 
-<h1>ANYTHING GOES</h1>
-<p class="subtitle">Rock Paper Scissors — runs entirely in your browser</p>
+<h1>ROCK PAPER ANYTHING</h1>
 
 <!-- LOAD SCREEN -->
 <div id="load-screen">
   <p class="load-info">
-    This game runs your <strong>fine-tuned Llama 3.2 3B model</strong> locally via WebAssembly — no API, no server.<br><br>
-    First load downloads <strong>~2 GB</strong> and caches it. Subsequent visits are instant.
+    An open ended twist on the classic game.
+    This game runs a <strong>fine-tuned Llama 3.2 3B model</strong> locally via WebAssembly.<br><br>
+    First load downloads <strong>~2 GB</strong> and caches it. Subsequent visits will start faster.
   </p>
   <button class="load-btn" id="load-btn" onclick="startLoad()">LOAD MODEL</button>
   <div class="progress-wrap" id="progress-wrap">
@@ -313,7 +313,7 @@
     <div class="player-card">
       <span class="player-lbl you">You</span>
       <div class="choice-val" id="p1-val">—</div>
-      <input id="p1" placeholder="e.g. a black hole" oninput="updateVal('p1','p1-val')">
+      <input id="p1" placeholder="e.g. a sausage" oninput="updateVal('p1','p1-val')">
     </div>
     <div class="vs-sep">VS</div>
     <div class="player-card">
@@ -329,20 +329,20 @@
     <div class="result-header" id="result-header"></div>
     <div class="result-reason" id="result-reason"></div>
   </div>
-  <div class="model-badge">olaughter/rockpaperanything · llama 3.2 3b · q4_k_m · wasm</div>
+  <div class="model-badge">olaughter/rockpaperanything · llama 3.2 3b · q4_k_m</div>
 </div>
 
 <script type="module">
   const MODEL_URL = 'https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v1.gguf';
-  const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything.
+  const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. 
 Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
 Think it through, then declare a winner with a punchy one-line explanation.
 Sometimes the small thing outwits the giant; sometimes the giant simply steps on it.
-Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.Follow the most interesting logic, not a formula.
-Be playful, be witty, but also be decisive. Never declare a tie.
+Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.
+Follow the most interesting logic, not a formula. Be playful, be witty, but also be decisive. Never declare a tie.
 Reward creative submissions over lazy ones, gibberish input should generally perform worse.
 Respond with one JSON object only. No other text.
-Your response should be in the following format:
+Your response should be in the following format: 
 {"winner": "x", "loser": "y", "reason": "..."}`;
 
   let wllama = null;
@@ -411,8 +411,10 @@ Your response should be in the following format:
       });
 
       setProgress(2, 'Downloading model (2 GB — cached after first load)…');
+      const threads = navigator.hardwareConcurrency || 4;
 
       await wllama.loadModelFromUrl(MODEL_URL, {
+        n_threads: threads,
         progressCallback: ({ loaded, total }) => {
           const pct = total ? (loaded / total) * 96 + 2 : 2;
           const mb = (loaded / 1024 / 1024).toFixed(0);
@@ -457,14 +459,21 @@ Your response should be in the following format:
     btn.disabled = true;
     btn.innerHTML = '<span class="generating">THINKING…</span>';
 
-    document.getElementById('result-box').style.display = 'none';
+    // show result box immediately so user sees tokens stream in
+    document.getElementById('result-header').className = 'result-header win-tie';
+    document.getElementById('result-header').textContent = 'GENERATING…';
+    document.getElementById('result-reason').textContent = '';
+    document.getElementById('result-box').style.display = 'block';
 
     try {
       const prompt = buildPrompt(p1, p2);
       const raw = await wllama.createCompletion(prompt, {
-        nPredict: 150,
+        nPredict: 80,
         sampling: { temp: 0.7, top_p: 0.9 },
-        stopTokens: [128001, 128009], // <|end_of_text|>, <|eot_id|>
+        stopTokens: [128001, 128009],
+        onNewToken: (_token, _piece, currentText) => {
+          document.getElementById('result-reason').textContent = currentText;
+        },
       });
 
       const data = extractJSON(raw);
