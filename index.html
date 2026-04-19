@@ -199,7 +199,7 @@
   <p class="load-info">
     An open ended twist on the classic game.<br><br>
     This uses an LLM that was fine-tuned & quantized using QLoRA on a Qwen2.5-3B model. Making it small enough to run within a browser<br><br>
-    The ~1.3gb model will be downloaded on the first visit and cached so subsequent visits will start faster.
+    The 1gb model will be downloaded on the first visit and cached so subsequent visits will start faster.
   </p>
   <button class="load-btn" id="load-btn" onclick="startLoad()">LOAD MODEL</button>
   <div class="progress-wrap" id="progress-wrap">
@@ -242,7 +242,7 @@
 </div>
 
 <script type="module">
-  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+  import * as webllm from "https://esm.sh/gh/mlc-ai/web-llm@fa6c12f";
 
   const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. 
 Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
