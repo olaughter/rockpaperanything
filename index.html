@@ -193,14 +193,13 @@
 </head>
 <body>
 
-<h1>ANYTHING GOES</h1>
-<p class="subtitle">Rock Paper Scissors — WebGPU edition</p>
+<h1>ROCK PAPER ANYTHING</h1>
 
 <div id="load-screen">
   <p class="load-info">
     An open ended twist on the classic game.<br><br>
-    This game runs a <strong>fine-tuned Llama 3.2 3B model</strong> locally via WebAssembly.<br><br>
-    First load downloads <strong>~2 GB</strong> and caches it. Subsequent visits will start faster.
+    This uses an LLM that was fine-tuned & quantized using QLoRA on a Qwen2.5-3B model. Making it small enough to run within a browser<br><br>
+    The ~1.3gb model will be downloaded on the first visit and cached so subsequent visits will start faster.
   </p>
   <button class="load-btn" id="load-btn" onclick="startLoad()">LOAD MODEL</button>
   <div class="progress-wrap" id="progress-wrap">
