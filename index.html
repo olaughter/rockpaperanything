@@ -259,11 +259,9 @@ Your response should be in the following format:
   const appConfig = {
     model_list: [
       {
-        model: "https://huggingface.co/olaughter/rpa_mlc",
-        model_id: "rpa-v1",
-        // Reuses the Llama 3.2 3B architecture WASM — same arch as your base model
-        model_lib: webllm.modelLibURLPrefix + webllm.modelVersion
-          + "/Llama-3.2-3B-Instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
+        model: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v3-mlc/rpa-q4f16_1-MLC",
+        model_id: "rpa-v3",
+        model_lib: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v3-mlc/rpa-q4f16_1-webgpu.wasm",
       }
     ]
   };
@@ -316,7 +314,7 @@ Your response should be in the following format:
     setProgress(0, 'Initialising WebGPU…');
 
     try {
-      engine = await webllm.CreateMLCEngine("rpa-v1", {
+      engine = await webllm.CreateMLCEngine("rpa-v3", {
         appConfig,
         initProgressCallback: ({ progress, text }) => {
           setProgress(progress * 100, text);
