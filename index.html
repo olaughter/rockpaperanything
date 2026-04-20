@@ -243,7 +243,7 @@
 </div>
 
 <script type="module">
-  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+  import * as webllm from "./web-llm.js";
 
   const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. 
 Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
@@ -260,7 +260,7 @@ Your response should be in the following format:
   const appConfig = {
     model_list: [
       {
-        model: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v4-mlc/rpa-q4f16_1-MLC",
+        model: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v4-mlc/rpa-q4f16_1-MLC/",
         model_id: "rpa-v4",
         model_lib: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v4-mlc/rpa-q4f16_1-webgpu.wasm",
       }
