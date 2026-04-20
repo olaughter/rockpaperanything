@@ -243,7 +243,7 @@
 </div>
 
 <script type="module">
-  import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.83";
+  import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
   const SYSTEM = `You are the judge of 'Rock, Paper, Anything' — a game where literally anything can battle anything. 
 Decide which item wins. Your reasoning can be physical, logical, metaphorical, or delightfully absurd.
@@ -260,9 +260,9 @@ Your response should be in the following format:
   const appConfig = {
     model_list: [
       {
-        model: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v3-mlc/rpa-q4f16_1-MLC",
-        model_id: "rpa-v3",
-        model_lib: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v3-mlc/rpa-q4f16_1-webgpu.wasm",
+        model: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v4-mlc/rpa-q4f16_1-MLC",
+        model_id: "rpa-v4",
+        model_lib: "https://huggingface.co/olaughter/rockpaperanything/resolve/main/models/rpa-v4-mlc/rpa-q4f16_1-webgpu.wasm",
       }
     ]
   };
@@ -315,7 +315,7 @@ Your response should be in the following format:
     setProgress(0, 'Initialising WebGPU…');
 
     try {
-      engine = await webllm.CreateMLCEngine("rpa-v3", {
+      engine = await webllm.CreateMLCEngine("rpa-v4", {
         appConfig,
         initProgressCallback: ({ progress, text }) => {
           setProgress(progress * 100, text);
