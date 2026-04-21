@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rock Paper Anything</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪨</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +20,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 3rem 2rem;
     overflow-x: hidden;
   }
 
@@ -43,6 +44,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    margin-bottom: 2rem;
   }
 
   .subtitle {
@@ -59,8 +61,8 @@
   .load-info {
     font-size: 0.85rem;
     color: #aaa;
-    margin-bottom: 2rem;
-    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    line-height: 1.9;
   }
   .load-info strong { color: #ccc; }
 
@@ -100,25 +102,25 @@
   #game-screen { display: none; width: 100%; max-width: 700px; }
   #game-screen.visible { display: flex; flex-direction: column; align-items: center; }
 
-  .score-bar { display: flex; gap: 2.5rem; margin-bottom: 2rem; font-family: 'Bebas Neue', sans-serif; }
-  .score-item { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+  .score-bar { display: flex; gap: 3rem; margin-bottom: 2.5rem; font-family: 'Bebas Neue', sans-serif; }
+  .score-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
   .score-num { font-size: 2.2rem; line-height: 1; }
   .score-lbl { font-size: 0.65rem; font-family: 'DM Sans', sans-serif; letter-spacing: 0.15em; text-transform: uppercase; color: #444; }
   .you-score .score-num { color: #ff5000; }
   .opp-score .score-num { color: #0078ff; }
   .tie-score .score-num { color: #444; }
 
-  .arena { display: flex; gap: 1.5rem; align-items: stretch; width: 100%; margin-bottom: 1.5rem; }
+  .arena { display: flex; gap: 1.5rem; align-items: stretch; width: 100%; margin-bottom: 2rem; }
 
   .player-card {
     flex: 1;
     border: 1px solid #1e1e1e;
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.75rem;
     background: #111;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .player-lbl { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #666; }
@@ -175,7 +177,7 @@
   .fight-btn:hover:not(:disabled) { background: #ff6a20; transform: translateY(-1px); }
   .fight-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  .result-box { width: 100%; margin-top: 1.5rem; border-radius: 12px; overflow: hidden; animation: fadeUp 0.35s ease; }
+  .result-box { width: 100%; margin-top: 2rem; border-radius: 12px; overflow: hidden; animation: fadeUp 0.35s ease; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
   .result-header { padding: 1.25rem 1.5rem; font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 0.05em; }
@@ -183,7 +185,7 @@
   .win-opp { background: #00091a; color: #0078ff; border: 1px solid rgba(0,120,255,.25); }
   .win-tie { background: #111; color: #777; border: 1px solid #222; }
 
-  .result-reason { padding: 1rem 1.5rem 1.5rem; font-size: 1rem; line-height: 1.7; color: #ccc; background: #0d0d0d; border-top: 1px solid #1a1a1a; }
+  .result-reason { padding: 1.25rem 1.5rem 2rem; font-size: 1rem; line-height: 1.9; color: #ccc; background: #0d0d0d; border-top: 1px solid #1a1a1a; }
 
   .generating { display: inline-block; animation: pulse 1s infinite alternate; color: #ff5000; }
   @keyframes pulse { from { opacity: 0.3; } to { opacity: 1; } }
@@ -199,8 +201,7 @@
 <div id="load-screen">
   <p class="load-info">
     An open ended twist on the classic game.<br><br>
-    This uses an LLM that was fine-tuned & quantized using QLoRA on a Qwen model. Making it small enough to run within a browser<br><br>
-    The 1gb model will be downloaded on the first visit and cached so subsequent visits will start faster.
+    This uses an LLM that was fine-tuned & quantized using QLoRA on a Qwen model. Making it small enough to run within a browser.     The 1gb model will be downloaded on the first visit and cached so subsequent visits will start faster.
   </p>
   <button class="load-btn" id="load-btn" onclick="startLoad()">LOAD MODEL</button>
   <div class="progress-wrap" id="progress-wrap">
@@ -252,7 +253,7 @@ Sometimes the small thing outwits the giant; sometimes the giant simply steps on
 Sometimes the connection is literal, sometimes metaphorical, sometimes poetic.Follow the most interesting logic, not a formula.
 Be playful, be witty, but also be decisive. Never declare a tie.
 Reward creative submissions over lazy ones, gibberish input should generally perform worse.
-Respond with one JSON object only. No other text.
+Respond in English only. Respond with one JSON object only. No other text.
 Your response should be in the following format:
 {"winner": "x", "loser": "y", "reason": "..."}`;
 
@@ -301,7 +302,7 @@ Your response should be in the following format:
     btn.disabled = true;
     btn.textContent = 'LOADING…';
     document.getElementById('progress-wrap').classList.add('visible');
-    setProgress(0, 'Initialising WebGPU…');
+    setProgress(0, 'Initialising…');
 
     const appConfig = {
       model_list: [
@@ -366,14 +367,14 @@ Your response should be in the following format:
           { role: 'system', content: SYSTEM },
           { role: 'user',   content: `["${p1}", "${p2}"]` },
         ],
-        max_tokens: 80,
+        max_tokens: 120,
         temperature: 0.7,
         top_p: 0.9,
         stream: true,
       });
 
       const reasonEl = document.getElementById('result-reason');
-      reasonEl.innerHTML = '<span style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#444;">Raw output</span><br><span id="raw-stream" style="color:#555;font-size:0.9rem;"></span>';
+      reasonEl.innerHTML = '<span style="display:block;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:#333;margin-bottom:0.75rem;">Raw thought</span><span id="raw-stream" style="color:#484848;font-size:0.95rem;line-height:1.8;"></span>';
       for await (const chunk of stream) {
         const delta = chunk.choices[0]?.delta?.content || '';
         raw += delta;
